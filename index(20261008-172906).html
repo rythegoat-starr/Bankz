@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Northstar Bank</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#f4f7f5;--card:#fff;--ink:#142019;--muted:#718078;--green:#126b45;--light:#e5f3eb;--line:#e5ebe7;--red:#b8323f}
+body{margin:0;background:#dfe7e2;color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif}
+.app{max-width:480px;min-height:100vh;margin:auto;background:var(--bg);position:relative;overflow:hidden}
+.top{padding:22px 18px 14px;display:flex;justify-content:space-between;align-items:center;background:var(--card)}
+.brand{display:flex;align-items:center;gap:10px;font-weight:850}
+.logo{width:38px;height:38px;border-radius:12px;background:var(--green);color:white;display:grid;place-items:center;font-weight:1000}
+.icon{width:40px;height:40px;border:1px solid var(--line);border-radius:50%;background:#fff;font-size:18px}
+main{padding:16px 16px 100px}
+.balance{background:linear-gradient(145deg,#0e6844,#0a4f35);color:white;border-radius:25px;padding:23px;box-shadow:0 15px 35px #126b4525}
+.small{font-size:13px;opacity:.72}
+.amount{font-size:43px;font-weight:850;letter-spacing:-2px;margin:7px 0 4px}
+.account{font-size:12px;opacity:.7}
+.actions{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:18px}
+.action{border:0;border-radius:16px;padding:13px 5px;background:#fff;color:var(--ink);font-weight:750;box-shadow:0 4px 15px #17261a0a}
+.action b{display:block;font-size:20px;margin-bottom:5px;color:var(--green)}
+.section{margin-top:23px}
+.sectionhead{display:flex;justify-content:space-between;align-items:center;margin:0 3px 10px;font-weight:850}
+.link{color:var(--green);font-size:13px}
+.tx{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px;display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.avatar{width:42px;height:42px;border-radius:13px;background:var(--light);display:grid;place-items:center;color:var(--green);font-weight:900}
+.txi{flex:1}.txn{font-weight:750;font-size:14px}.txd{font-size:11px;color:var(--muted);margin-top:3px}
+.plus{color:var(--green);font-weight:850}.minus{font-weight:850}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(480px,100%);height:72px;background:#ffffffef;backdrop-filter:blur(16px);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(5,1fr);z-index:20}
+.nav button{border:0;background:none;color:#839088;font-size:10px;font-weight:700}.nav .on{color:var(--green)}.ni{font-size:21px;margin:7px 0 2px}
+.page{display:none}.page.on{display:block}
+.sheetbg{position:fixed;inset:0;background:#0008;display:none;align-items:flex-end;z-index:50}
+.sheetbg.on{display:flex}.sheet{width:min(480px,100%);margin:auto;background:#fff;border-radius:28px 28px 0 0;padding:20px;animation:up .2s ease}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+.handle{width:42px;height:5px;border-radius:9px;background:#d6ddd8;margin:0 auto 18px}
+h2{margin:0 0 16px;font-size:21px}
+input{width:100%;padding:16px;border:1px solid var(--line);border-radius:15px;margin-bottom:10px;font-size:16px;outline:none}
+input:focus{border-color:var(--green)}
+.primary{width:100%;padding:16px;border:0;border-radius:16px;background:var(--green);color:white;font-weight:850}
+.cancel{width:100%;padding:13px;border:0;background:none;color:var(--muted)}
+.notice{background:#fff;border:1px solid var(--line);border-radius:18px;padding:15px;margin-bottom:8px}
+.empty{color:var(--muted);text-align:center;padding:25px}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top">
+  <div class="brand"><div class="logo">N</div> Northstar Bank</div>
+  <button class="icon" onclick="openSheet('notifications')">♧</button>
+</header>
+
+<main>
+<section id="home" class="page on">
+  <div class="balance">
+    <div class="small">Available balance</div>
+    <div class="amount" id="balance" title="Double-tap to edit">$2,450.00</div>
+    <div style="font-size:10px;opacity:.55;margin-top:4px">Double-tap balance to edit</div>
+    <div class="account">Checking •••• 4821</div>
+    <div class="actions">
+      <button class="action" onclick="openSheet('send')"><b>↑</b>Send</button>
+      <button class="action" onclick="openSheet('deposit')"><b>+</b>Deposit</button>
+      <button class="action" onclick="openSheet('withdraw')"><b>↓</b>Withdraw</button>
+    </div>
+  </div>
+  <div class="section">
+    <div class="sectionhead">Recent activity <span class="link" onclick="page('activity')">View all</span></div>
+    <div id="recent"></div>
+  </div>
+</section>
+
+<section id="activity" class="page">
+  <div class="sectionhead" style="margin-bottom:15px">Activity</div>
+  <div id="alltx"></div>
+</section>
+
+<section id="card" class="page">
+  <div class="sectionhead">Debit card</div>
+  <div style="height:210px;border-radius:25px;padding:24px;background:linear-gradient(135deg,#163f2d,#081d14);color:white;box-shadow:0 15px 35px #0002">
+    <div style="font-weight:900">NORTHSTAR</div>
+    <div style="margin-top:75px;font-size:20px;letter-spacing:3px">•••• •••• •••• 4821</div>
+    <div style="display:flex;justify-content:space-between;margin-top:14px;font-size:11px;opacity:.7"><span>DEMO CARD</span><span>12/30</span></div>
+  </div>
+  <div class="section">
+    <div class="notice"><b>Card controls</b><div class="txd">Lock, unlock, and view your fictional card.</div></div>
+    <div class="notice"><b>Digital wallet</b><div class="txd">This simulator does not connect to real payment services.</div></div>
+  </div>
+</section>
+
+<section id="shop" class="page">
+  <div class="sectionhead">Game Shop</div>
+  <div class="notice"><b>Fictional purchases</b><div class="txd">Buy simulated game items using your simulator balance.</div></div>
+
+  <div class="tx" onclick="buyItem('Starter Pack',4.99)">
+    <div class="avatar">★</div><div class="txi"><div class="txn">Starter Pack</div><div class="txd">1,000 game credits</div></div><div class="minus">$4.99</div>
+  </div>
+  <div class="tx" onclick="buyItem('Premium Pass',9.99)">
+    <div class="avatar">P</div><div class="txi"><div class="txn">Premium Pass</div><div class="txd">30-day fictional pass</div></div><div class="minus">$9.99</div>
+  </div>
+  <div class="tx" onclick="buyItem('Coin Bundle',24.99)">
+    <div class="avatar">C</div><div class="txi"><div class="txn">Coin Bundle</div><div class="txd">10,000 game coins</div></div><div class="minus">$24.99</div>
+  </div>
+  <div class="tx" onclick="buyItem('Legendary Skin',49.99)">
+    <div class="avatar">L</div><div class="txi"><div class="txn">Legendary Skin</div><div class="txd">Fictional cosmetic item</div></div><div class="minus">$49.99</div>
+  </div>
+</section>
+
+<section id="profile" class="page">
+  <div style="text-align:center;padding:15px 0 20px">
+    <div class="logo" style="width:76px;height:76px;border-radius:25px;margin:auto;font-size:28px">R</div>
+    <h2 style="margin:10px 0 2px">Demo User</h2><div class="txd">@demo_user</div>
+  </div>
+  <div class="notice"><b>Personal details</b><div class="txd">Demo profile</div></div>
+  <div class="notice" onclick="openSheet('notifications')"><b>Notifications</b><div class="txd">View simulated bank alerts</div></div>
+  <div class="notice" onclick="resetDemo()"><b>Reset simulator</b><div class="txd">Restore the starting balance and activity</div></div>
+</section>
+</main>
+
+<nav class="nav">
+<button class="on" onclick="page('home',this)"><div class="ni">⌂</div>Home</button>
+<button onclick="page('activity',this)"><div class="ni">≡</div>Activity</button>
+<button onclick="page('card',this)"><div class="ni">▣</div>Card</button>
+<button onclick="page('shop',this)"><div class="ni">◆</div>Shop</button>
+<button onclick="page('profile',this)"><div class="ni">●</div>Profile</button>
+</nav>
+</div>
+
+<div id="modal" class="sheetbg" onclick="outside(event)">
+<div class="sheet">
+<div class="handle"></div>
+<div id="send" class="modalpage" style="display:none">
+<h2>Send money</h2><input id="sendName" placeholder="Recipient"><input id="sendAmount" type="number" placeholder="Amount">
+<button class="primary" onclick="send()">Send</button><button class="cancel" onclick="closeSheet()">Cancel</button>
+</div>
+<div id="deposit" class="modalpage" style="display:none">
+<h2>Deposit</h2><input id="depositAmount" type="number" placeholder="Amount">
+<button class="primary" onclick="deposit()">Deposit</button><button class="cancel" onclick="closeSheet()">Cancel</button>
+</div>
+<div id="withdraw" class="modalpage" style="display:none">
+<h2>Withdraw</h2><input id="withdrawAmount" type="number" placeholder="Amount">
+<button class="primary" onclick="withdraw()">Withdraw</button><button class="cancel" onclick="closeSheet()">Cancel</button>
+</div>
+<div id="editBalance" class="modalpage" style="display:none">
+<h2>Edit balance</h2>
+<input id="newBalance" type="number" inputmode="decimal" placeholder="Enter any amount">
+<button class="primary" onclick="setBalance()">Save balance</button>
+<button class="cancel" onclick="closeSheet()">Cancel</button>
+</div>
+<div id="notifications" class="modalpage" style="display:none">
+<h2>Notifications</h2><div id="notices"></div><button class="cancel" onclick="closeSheet()">Close</button>
+</div>
+</div></div>
+
+<script>
+let balance=Number(localStorage.getItem("ns_balance")||2450);
+let tx=JSON.parse(localStorage.getItem("ns_tx")||"[]");
+let notes=JSON.parse(localStorage.getItem("ns_notes")||"[]");
+tx=tx.filter(t=>t.name!=="Balance adjustment");
+notes=notes.filter(n=>n.title!=="Balance updated");
+
+function money(n){
+  n=Number(n);
+  const sign=n<0?"-":"";
+  n=Math.abs(n);
+  if(n>=1e12) return sign+"$"+trim((n/1e12).toFixed(n>=1e13?0:2))+"T";
+  if(n>=1e9) return sign+"$"+trim((n/1e9).toFixed(n>=1e10?0:2))+"B";
+  if(n>=1e6) return sign+"$"+trim((n/1e6).toFixed(n>=1e7?0:2))+"M";
+  if(n>=1e3) return sign+"$"+trim((n/1e3).toFixed(n>=1e4?0:2))+"K";
+  return sign+"$"+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function trim(v){return v.replace(/\\.?0+$/,"")}
+function save(){localStorage.setItem("ns_balance",balance);localStorage.setItem("ns_tx",JSON.stringify(tx));localStorage.setItem("ns_notes",JSON.stringify(notes))}
+function update(){
+ document.getElementById("balance").textContent=money(balance);
+ const visibleTx=tx.filter(t=>!t.hidden);
+ const render=visibleTx.length?visibleTx.map(t=>`<div class="tx"><div class="avatar">${esc(t.name[0]||"N")}</div><div class="txi"><div class="txn">${esc(t.name)}</div><div class="txd">${esc(t.date)}</div></div><div class="${t.amount>=0?'plus':'minus'}">${t.amount>=0?"+":""}${money(t.amount)}</div></div>`).join(""):`<div class="empty">No activity yet</div>`;
+ document.getElementById("recent").innerHTML=render;
+ document.getElementById("alltx").innerHTML=render;
+ document.getElementById("notices").innerHTML=notes.length?notes.map(n=>`<div class="notice"><b>${esc(n.title)}</b><div class="txd">${esc(n.text)}</div></div>`).join(""):`<div class="empty">No notifications</div>`;
+}
+function addTx(name,amount,title,text){
+ tx.unshift({name,amount,date:new Date().toLocaleString(),hidden:name==="Balance adjustment"});
+ notes.unshift({title,text});
+ notes=notes.slice(0,12);tx=tx.slice(0,30);save();update();
+}
+function send(){
+ let name=document.getElementById("sendName").value.trim()||"Demo Recipient", a=Number(document.getElementById("sendAmount").value);
+ if(a<=0||!Number.isFinite(a))return alert("Enter an amount");
+ if(a>balance)return alert("Insufficient simulated funds");
+ balance-=a;addTx(name,-a,"Transfer sent",`${money(a)} sent to ${name}.`);closeSheet();
+}
+function deposit(){
+ let a=Number(document.getElementById("depositAmount").value);
+ if(a<=0||!Number.isFinite(a))return alert("Enter an amount");
+ balance+=a;addTx("Deposit",a,"Deposit received",`${money(a)} was added to your simulated account.`);closeSheet();
+}
+function withdraw(){
+ let a=Number(document.getElementById("withdrawAmount").value);
+ if(a<=0||!Number.isFinite(a))return alert("Enter an amount");
+ if(a>balance)return alert("Insufficient simulated funds");
+ balance-=a;addTx("Withdrawal",-a,"Withdrawal processed",`${money(a)} was removed from your simulated account.`);closeSheet();
+}
+function buyItem(item,price){
+  if(balance<price){alert("Insufficient simulated funds");return}
+  if(!confirm(`Buy ${item} for ${money(price)}?`))return;
+  balance-=price;
+  addTx(item,-price,"Purchase completed",`${money(price)} spent on ${item}.`);
+  closeSheet();
+  page("home",document.querySelector(".nav button"));
+}
+
+function page(id,btn){
+ document.querySelectorAll(".page").forEach(x=>x.classList.remove("on"));
+ document.getElementById(id).classList.add("on");
+ document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("on"));
+ if(btn)btn.classList.add("on");
+}
+function openSheet(id){
+ document.querySelectorAll(".modalpage").forEach(x=>x.style.display="none");
+ document.getElementById(id).style.display="block";
+ document.getElementById("modal").classList.add("on");
+}
+function closeSheet(){document.getElementById("modal").classList.remove("on")}
+function outside(e){if(e.target.id==="modal")closeSheet()}
+function resetDemo(){balance=2450;tx=[];notes=[];save();update();page("home",document.querySelector(".nav button"));alert("Simulator reset")}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+
+function setBalance(){
+  const a=Number(document.getElementById("newBalance").value);
+  if(!Number.isFinite(a)||a<0){alert("Enter a valid amount");return}
+  balance=a;
+  save();
+  update();
+  closeSheet();
+}
+
+let lastTap=0;
+document.getElementById("balance").addEventListener("click",function(){
+  const now=Date.now();
+  if(now-lastTap<350){
+    document.getElementById("newBalance").value=balance;
+    openSheet("editBalance");
+  }
+  lastTap=now;
+});
+document.getElementById("balance").addEventListener("dblclick",function(){
+  document.getElementById("newBalance").value=balance;
+  openSheet("editBalance");
+});
+
+update();
+</script>
+</body>
+</html>
